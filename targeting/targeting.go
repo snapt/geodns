@@ -104,9 +104,10 @@ func (t TargetOptions) GetTargets(ip net.IP, hasClosest bool) ([]string, int, *g
 		targets = append(targets, "["+ipStr+"]")
 		ip4 := ip.To4()
 		if ip4 != nil {
-			if ip4[3] != 0 {
-				ip4[3] = 0
-				targets = append(targets, "["+ip4.String()+"]")
+			for i := 32; i > 0; i-- {
+				mask := net.CIDRMask(i, 32)
+				masked := ip.Mask(mask)
+				targets = append(targets, fmt.Sprintf("[%s/%d]", masked, i))
 			}
 		} else {
 			// v6 address, also target the /48 address
